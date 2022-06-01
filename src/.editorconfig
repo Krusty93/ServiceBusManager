@@ -404,6 +404,9 @@ csharp_style_prefer_local_over_anonymous_function = true:suggestion
 csharp_style_prefer_index_operator = true:suggestion
 csharp_style_prefer_range_operator = true:suggestion
 
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
 [src/**{.UnitTests,/Controllers}/**.cs]
 # Async methods should have "Async" suffix
 dotnet_naming_rule.async_methods_end_in_async.severity = none
