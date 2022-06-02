@@ -61,5 +61,28 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 
             return queueDetails;
         }
+
+        public async Task DeleteQueueAsync(string name, CancellationToken cancellationToken = default)
+        {
+            await _client.DeleteQueueAsync(name, cancellationToken);
+        }
+
+        public async Task CreateQueueAsync(string name, ServiceBusQueueDetails details, CancellationToken cancellationToken = default)
+        {
+            var options = new CreateQueueOptions(name);
+
+            options.LockDuration = details.MessageSettings.LockDuration;
+            options.AutoDeleteOnIdle = details.MessageSettings.AutoDeleteOnIdle;
+            options.DefaultMessageTimeToLive = details.MessageSettings.DefaultMessageTimeToLive;
+            options.DuplicateDetectionHistoryTimeWindow = details.Properties.DuplicateDetectionHistoryTimeWindow;
+            options.MaxDeliveryCount = details.Properties.MaxDeliveryCount;
+            options.MaxSizeInMegabytes = details.Properties.MaxSizeInMegabytes;
+            options.EnableBatchedOperations = details.Settings.EnableBatchedOperations;
+            options.RequiresDuplicateDetection = details.Settings.RequireDuplicateDetection;
+            options.EnablePartitioning = details.Settings.EnablePartitioning;
+            options.RequiresSession = details.Settings.RequireSession;
+
+            await _client.CreateQueueAsync(options);
+        }
     }
 }

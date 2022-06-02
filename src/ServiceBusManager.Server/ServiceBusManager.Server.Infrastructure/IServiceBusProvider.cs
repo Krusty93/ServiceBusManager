@@ -5,6 +5,10 @@ namespace ServiceBusManager.Server.Infrastructure
     {
         Task<IReadOnlyCollection<ServiceBusQueue>> GetQueuesAsync(CancellationToken cancellationToken = default);
 
-        Task<ServiceBusQueueDetails> GetQueueDetailsAsync(string name, CancellationToken cancellationToken);
+        Task<ServiceBusQueueDetails> GetQueueDetailsAsync(string name, CancellationToken cancellationToken = default);
+
+        Task DeleteQueueAsync(string name, CancellationToken cancellationToken = default);
+
+        Task CreateQueueAsync(string name, ServiceBusQueueDetails details, CancellationToken cancellationToken = default);
     }
 }

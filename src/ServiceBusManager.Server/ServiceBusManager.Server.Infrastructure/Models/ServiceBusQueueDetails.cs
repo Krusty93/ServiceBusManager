@@ -15,9 +15,36 @@
             bool enablePartitioning,
             bool requireSession,
             bool requireDuplicateDetection)
+            : this(
+                  name,
+                  autoDeleteOnIdle,
+                  defaultMessageTimeToLive,
+                  lockDuration,
+                  duplicateDetectionHistoryTimeWindow,
+                  maxSizeInMegabytes,
+                  maxDeliveryCount,
+                  enableBatchedOperations,
+                  enablePartitioning,
+                  requireSession,
+                  requireDuplicateDetection)
+        {
+            Status = status;
+        }
+
+        public ServiceBusQueueDetails(
+            string name,
+            TimeSpan autoDeleteOnIdle,
+            TimeSpan defaultMessageTimeToLive,
+            TimeSpan lockDuration,
+            TimeSpan duplicateDetectionHistoryTimeWindow,
+            long maxSizeInMegabytes,
+            int maxDeliveryCount,
+            bool enableBatchedOperations,
+            bool enablePartitioning,
+            bool requireSession,
+            bool requireDuplicateDetection)
         {
             Name = name;
-            Status = status;
 
             MessageSettings = new ServiceBusQueueMessageSettings(
                 autoDeleteOnIdle,

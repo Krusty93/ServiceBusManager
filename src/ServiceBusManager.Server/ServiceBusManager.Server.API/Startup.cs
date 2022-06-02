@@ -90,7 +90,7 @@ namespace ServiceBusManager.Server.API
 
         private static void SetupMediatR(IServiceCollection services)
         {
-            services.AddMediatR(typeof(Startup));
+            services.AddMediatR(typeof(Application.Bootstrapper));
         }
 
         private static void SetupAutomapper(IServiceCollection services)

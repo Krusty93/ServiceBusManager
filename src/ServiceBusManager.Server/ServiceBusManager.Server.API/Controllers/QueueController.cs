@@ -1,5 +1,7 @@
 ﻿using System.Net.Mime;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ServiceBusManager.Server.Application.Commands;
 using ServiceBusManager.Server.Application.Queries;
 
 namespace ServiceBusManager.Server.API.Controllers
@@ -11,10 +13,12 @@ namespace ServiceBusManager.Server.API.Controllers
     public class QueueController : ControllerBase
     {
         private readonly IServiceBusQueries _serviceBusQueries;
+        private readonly IMediator _mediator;
 
-        public QueueController(IServiceBusQueries serviceBusQueries)
+        public QueueController(IServiceBusQueries serviceBusQueries, IMediator mediator)
         {
             _serviceBusQueries = serviceBusQueries;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -44,6 +48,7 @@ namespace ServiceBusManager.Server.API.Controllers
         /// Get queue details
         /// </summary>
         /// <remarks>
+        /// Sample request:
         /// 
         ///     GET: /api/queue/{name}
         /// 
@@ -60,6 +65,74 @@ namespace ServiceBusManager.Server.API.Controllers
         {
             var details = await _serviceBusQueries.GetQueueDetailsAsync(name);
             return Ok(details);
+        }
+
+        /// <summary>
+        /// Create a new queue
+        /// </summary>
+        /// <param name="name">Queue name</param>
+        /// <param name="command">Body request</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST: /api/queue/{name}
+        ///     {
+        ///       "autoDeleteOnIdle": "00:05:00",
+        ///       "defaultMessageTimeToLive": "00:01:00",
+        ///       "lockDuration": "00:01:00",
+        ///       "duplicateDetectionHistoryTimeWindow": "00:01:00",
+        ///       "maxSizeInMegabytes": 1024,
+        ///       "maxDeliveryCount": 1,
+        ///       "enableBatchedOperations": true,
+        ///       "enablePartitioning": true,
+        ///       "requireSession": true,
+        ///       "requireDuplicateDetection": true
+        ///     }
+        /// 
+        /// </remarks>
+        /// <response code="201">Operation succeeded,</response>
+        /// <response code="500">If the server can't process the request</response>
+        /// <response code="503">If the server is not ready to handle the request</response>
+        [HttpPost]
+        [Route("{name}")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> CreateQueueAsync(
+            [FromRoute] string name,
+            [FromBody] CreateQueueCommand command)
+        {
+            command.Name = name;
+
+            await _mediator.Send(command);
+
+            return Created(name, null);
+        }
+
+        /// <summary>
+        /// Delete queue
+        /// </summary>
+        /// <param name="name">Queue name</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     DELETE: /api/queue/{name}
+        /// 
+        /// </remarks>
+        /// <response code="204">Operation succeeded</response>
+        /// <response code="500">If the server can't process the request</response>
+        /// <response code="503">If the server is not ready to handle the request</response>
+        [HttpDelete]
+        [Route("{name}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> DeleteQueueAsync([FromRoute] string name)
+        {
+            var cmd = new DeleteQueueCommand(name);
+            await _mediator.Send(cmd);
+
+            return NoContent();
         }
     }
 }
