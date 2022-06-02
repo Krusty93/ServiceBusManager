@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 
 namespace ServiceBusManager.Server.API
@@ -18,13 +19,19 @@ namespace ServiceBusManager.Server.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            SetupServiceBus(services);
+
             SetupSwagger(services);
 
             SetupMediatR(services);
 
+            SetupAutomapper(services);
+
             SetupGZipCompression(services);
 
             SetupHealthChecks(services);
+
+            SetupInternalServices(services);
         }
 
         public void Configure(IApplicationBuilder app)
@@ -37,6 +44,15 @@ namespace ServiceBusManager.Server.API
         }
 
         #region Setup
+
+        private void SetupServiceBus(IServiceCollection services)
+        {
+            services.AddAzureClients(builder =>
+            {
+                var connectionString = _configuration.GetConnectionString("ServiceBus");
+                builder.AddServiceBusAdministrationClient(connectionString);
+            });
+        }
 
         private void SetupSwagger(IServiceCollection services)
         {
@@ -77,6 +93,13 @@ namespace ServiceBusManager.Server.API
             services.AddMediatR(typeof(Startup));
         }
 
+        private static void SetupAutomapper(IServiceCollection services)
+        {
+            services.AddAutoMapper(
+                typeof(Application.Bootstrapper));
+            //    , typeof(Startup));
+        }
+
         private static void SetupGZipCompression(IServiceCollection services)
         {
             services.Configure<GzipCompressionProviderOptions>(options =>
@@ -92,6 +115,12 @@ namespace ServiceBusManager.Server.API
         private static void SetupHealthChecks(IServiceCollection services)
         {
             services.AddHealthChecks();
+        }
+
+        private static void SetupInternalServices(IServiceCollection services)
+        {
+            Infrastructure.Bootstrapper.Initialize(services);
+            Application.Bootstrapper.Initialize(services);
         }
 
         #endregion
