@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Logging;
 
@@ -6,13 +7,16 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 {
     internal class AzureServiceBusProvider : IServiceBusProvider
     {
-        private readonly ServiceBusAdministrationClient _client;
+        private readonly ServiceBusAdministrationClient _adminClient;
+        private readonly ServiceBusClient _client;
         private readonly ILogger<AzureServiceBusProvider> _logger;
 
         public AzureServiceBusProvider(
-            ServiceBusAdministrationClient client,
+            ServiceBusAdministrationClient adminClient,
+            ServiceBusClient client,
             ILogger<AzureServiceBusProvider> logger)
         {
+            _adminClient = adminClient;
             _client = client;
             _logger = logger;
         }
@@ -21,7 +25,7 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
         {
             var results = new List<ServiceBusQueue>();
 
-            AsyncPageable<QueueRuntimeProperties> queues = _client.GetQueuesRuntimePropertiesAsync(cancellationToken);
+            AsyncPageable<QueueRuntimeProperties> queues = _adminClient.GetQueuesRuntimePropertiesAsync(cancellationToken);
 
             await foreach (QueueRuntimeProperties queue in queues)
             {
@@ -38,7 +42,7 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 
         public async Task<ServiceBusQueueDetails> GetQueueDetailsAsync(string name, CancellationToken cancellationToken)
         {
-            QueueProperties details = await _client.GetQueueAsync(name, cancellationToken);
+            QueueProperties details = await _adminClient.GetQueueAsync(name, cancellationToken);
 
             if (!Enum.TryParse(details.Status.ToString(), true, out ServiceBusQueueStatus status))
             {
@@ -64,7 +68,7 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 
         public async Task DeleteQueueAsync(string name, CancellationToken cancellationToken = default)
         {
-            await _client.DeleteQueueAsync(name, cancellationToken);
+            await _adminClient.DeleteQueueAsync(name, cancellationToken);
         }
 
         public async Task CreateQueueAsync(string name, ServiceBusQueueDetails details, CancellationToken cancellationToken = default)
@@ -82,7 +86,38 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
             options.EnablePartitioning = details.Settings.EnablePartitioning;
             options.RequiresSession = details.Settings.RequireSession;
 
-            await _client.CreateQueueAsync(options);
+            await _adminClient.CreateQueueAsync(options);
         }
+
+        public async Task PurgeActiveQueueAsync(string name, CancellationToken cancellationToken = default)
+        {
+            ServiceBusReceiver receiver = GetReceiver(name);
+
+            IReadOnlyList<ServiceBusReceivedMessage> messages;
+
+            bool isLastIteration = false;
+
+            const int MAX_COUNT = 50;
+
+            do
+            {
+                messages = await receiver.ReceiveMessagesAsync(
+                    MAX_COUNT,
+                    maxWaitTime: TimeSpan.FromSeconds(30),
+                    cancellationToken: cancellationToken);
+
+                if (messages.Count < MAX_COUNT)
+                    isLastIteration = true;
+
+                foreach (ServiceBusReceivedMessage message in messages)
+                {
+                    await receiver.CompleteMessageAsync(message, cancellationToken);
+                }
+            }
+            while (!isLastIteration);
+        }
+
+        private ServiceBusReceiver GetReceiver(string name) =>
+            _client.CreateReceiver(name);
     }
 }

@@ -51,6 +51,7 @@ namespace ServiceBusManager.Server.API
             {
                 var connectionString = _configuration.GetConnectionString("ServiceBus");
                 builder.AddServiceBusAdministrationClient(connectionString);
+                builder.AddServiceBusClient(connectionString);
             });
         }
 
@@ -97,7 +98,6 @@ namespace ServiceBusManager.Server.API
         {
             services.AddAutoMapper(
                 typeof(Application.Bootstrapper));
-            //    , typeof(Startup));
         }
 
         private static void SetupGZipCompression(IServiceCollection services)

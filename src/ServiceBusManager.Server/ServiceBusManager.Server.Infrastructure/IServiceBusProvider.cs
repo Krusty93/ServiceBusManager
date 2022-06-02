@@ -10,5 +10,7 @@ namespace ServiceBusManager.Server.Infrastructure
         Task DeleteQueueAsync(string name, CancellationToken cancellationToken = default);
 
         Task CreateQueueAsync(string name, ServiceBusQueueDetails details, CancellationToken cancellationToken = default);
+
+        Task PurgeActiveQueueAsync(string name, CancellationToken cancellationToken = default);
     }
 }

@@ -83,10 +83,10 @@ namespace ServiceBusManager.Server.API.Controllers
         ///       "duplicateDetectionHistoryTimeWindow": "00:01:00",
         ///       "maxSizeInMegabytes": 1024,
         ///       "maxDeliveryCount": 1,
-        ///       "enableBatchedOperations": true,
-        ///       "enablePartitioning": true,
-        ///       "requireSession": true,
-        ///       "requireDuplicateDetection": true
+        ///       "enableBatchedOperations": false,
+        ///       "enablePartitioning": false,
+        ///       "requireSession": false,
+        ///       "requireDuplicateDetection": false
         ///     }
         /// 
         /// </remarks>
@@ -131,6 +131,33 @@ namespace ServiceBusManager.Server.API.Controllers
         {
             var cmd = new DeleteQueueCommand(name);
             await _mediator.Send(cmd);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Purge active messages of the given queue
+        /// </summary>
+        /// <param name="name">Queue name</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     DELETE: api/queue/{name}/active
+        /// 
+        /// </remarks>
+        /// <response code="204">Operation succeeded</response>
+        /// <response code="500">If the server can't process the request</response>
+        /// <response code="503">If the server is not ready to handle the request</response>
+        [HttpDelete]
+        [Route("{name}/active")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> PurgeQueueAsync([FromRoute] string name)
+        {
+            var command = new PurgeActiveQueueCommand(name);
+
+            await _mediator.Send(command);
 
             return NoContent();
         }
