@@ -161,5 +161,32 @@ namespace ServiceBusManager.Server.API.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Purge dead letter messages of the given queue
+        /// </summary>
+        /// <param name="name">Queue name</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     DELETE: api/queue/{name}/dlq
+        /// 
+        /// </remarks>
+        /// <response code="204">Operation succeeded</response>
+        /// <response code="500">If the server can't process the request</response>
+        /// <response code="503">If the server is not ready to handle the request</response>
+        [HttpDelete]
+        [Route("{name}/dlq")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> PurgeDeadLetterQueueAsync([FromRoute] string name)
+        {
+            var command = new PurgeDeadLetterQueueCommand(name);
+
+            await _mediator.Send(command);
+
+            return NoContent();
+        }
     }
 }

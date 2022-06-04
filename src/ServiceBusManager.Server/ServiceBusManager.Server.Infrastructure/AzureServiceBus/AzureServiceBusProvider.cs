@@ -117,7 +117,40 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
             while (!isLastIteration);
         }
 
+        public async Task PurgeDeadLetterQueueAsync(string name, CancellationToken cancellationToken = default)
+        {
+            ServiceBusReceiver receiver = GetDeadLetterReceiver(name);
+
+            IReadOnlyList<ServiceBusReceivedMessage> messages;
+
+            bool isLastIteration = false;
+
+            const int MAX_COUNT = 50;
+            do
+            {
+                messages = await receiver.ReceiveMessagesAsync(
+                    MAX_COUNT,
+                    maxWaitTime: TimeSpan.FromSeconds(30),
+                    cancellationToken: cancellationToken);
+
+                if (messages.Count < MAX_COUNT)
+                    isLastIteration = true;
+
+                foreach (ServiceBusReceivedMessage message in messages)
+                {
+                    await receiver.CompleteMessageAsync(message, cancellationToken);
+                }
+            }
+            while (!isLastIteration);
+        }
+
         private ServiceBusReceiver GetReceiver(string name) =>
             _client.CreateReceiver(name);
+
+        private ServiceBusReceiver GetDeadLetterReceiver(string name) =>
+            _client.CreateReceiver(name, new ServiceBusReceiverOptions
+            {
+                SubQueue = SubQueue.DeadLetter
+            });
     }
 }
