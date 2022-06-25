@@ -16,4 +16,9 @@
         <ProjectReference Include="..\ServiceBusManager.Server.Infrastructure\ServiceBusManager.Server.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="CommandHandlers\Aws\" />
+      <Folder Include="Commands\Aws\" />
+    </ItemGroup>
+
 </Project>

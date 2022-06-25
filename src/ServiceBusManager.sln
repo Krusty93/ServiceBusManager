@@ -18,6 +18,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceBusManager.Client", "ServiceBusManager.Client", "{3C342E1E-356B-4D2C-972F-60E6598A7CB2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{43EDA300-92A3-48A3-83D9-897B059D0183}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusManager.Server.Providers.Common", "ServiceBusManager.Server\ServiceBusManager.Server.Providers\ServiceBusManager.Server.Providers.Common\ServiceBusManager.Server.Providers.Common.csproj", "{E424E660-E975-45E6-B478-ED4EDB976012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusManager.Server.Providers.Azure", "ServiceBusManager.Server\ServiceBusManager.Server.Providers\ServiceBusManager.Server.Providers.Azure\ServiceBusManager.Server.Providers.Azure.csproj", "{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusManager.Server.Providers.Aws", "ServiceBusManager.Server\ServiceBusManager.Server.Providers\ServiceBusManager.Server.Providers.Aws\ServiceBusManager.Server.Providers.Aws.csproj", "{8086A306-251A-4A33-B6D8-77A7522E6058}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +44,18 @@ Global
 		{2A98BC1E-EB50-40B4-ADB8-B06A153234F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A98BC1E-EB50-40B4-ADB8-B06A153234F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A98BC1E-EB50-40B4-ADB8-B06A153234F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E424E660-E975-45E6-B478-ED4EDB976012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E424E660-E975-45E6-B478-ED4EDB976012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E424E660-E975-45E6-B478-ED4EDB976012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E424E660-E975-45E6-B478-ED4EDB976012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8086A306-251A-4A33-B6D8-77A7522E6058}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8086A306-251A-4A33-B6D8-77A7522E6058}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8086A306-251A-4A33-B6D8-77A7522E6058}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8086A306-251A-4A33-B6D8-77A7522E6058}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +64,10 @@ Global
 		{188E3747-FEDA-4C93-A1B7-4D325FA3ABD0} = {835B39D0-E9BC-4404-A4F7-4C3143B2DE4D}
 		{77B751F2-A32F-4912-A2E7-50A7B1A45F60} = {835B39D0-E9BC-4404-A4F7-4C3143B2DE4D}
 		{2A98BC1E-EB50-40B4-ADB8-B06A153234F9} = {835B39D0-E9BC-4404-A4F7-4C3143B2DE4D}
+		{43EDA300-92A3-48A3-83D9-897B059D0183} = {835B39D0-E9BC-4404-A4F7-4C3143B2DE4D}
+		{E424E660-E975-45E6-B478-ED4EDB976012} = {43EDA300-92A3-48A3-83D9-897B059D0183}
+		{1E63E5CC-EFBD-42AD-B528-168BA2CE4C8F} = {43EDA300-92A3-48A3-83D9-897B059D0183}
+		{8086A306-251A-4A33-B6D8-77A7522E6058} = {43EDA300-92A3-48A3-83D9-897B059D0183}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C549A7F0-4C90-43D3-B817-721A96A349DC}

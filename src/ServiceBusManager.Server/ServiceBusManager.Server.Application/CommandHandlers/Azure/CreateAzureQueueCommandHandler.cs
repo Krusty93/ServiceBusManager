@@ -1,24 +1,25 @@
 ﻿using MediatR;
-using ServiceBusManager.Server.Application.Commands;
-using ServiceBusManager.Server.Infrastructure;
+using ServiceBusManager.Server.Application.Commands.Azure;
+using ServiceBusManager.Server.Providers.Azure.Models;
+using ServiceBusManager.Server.Providers.Common;
 
-namespace ServiceBusManager.Server.Application.CommandHandlers
+namespace ServiceBusManager.Server.Application.CommandHandlers.Azure
 {
-    internal class CreateQueueCommandHandler : IRequestHandler<CreateQueueCommand>
+    internal class CreateAzureQueueCommandHandler : IRequestHandler<CreateAzureQueueCommand>
     {
         private readonly IServiceBusProvider _serviceBusProvider;
 
-        public CreateQueueCommandHandler(IServiceBusProvider serviceBusProvider)
+        public CreateAzureQueueCommandHandler(IServiceBusProvider serviceBusProvider)
         {
             _serviceBusProvider = serviceBusProvider;
         }
 
-        public async Task<Unit> Handle(CreateQueueCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CreateAzureQueueCommand request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new ArgumentException(nameof(request.Name));
 
-            var details = new ServiceBusQueueDetails(
+            var details = new AzureServiceBusQueueDetails(
                 request.Name,
                 request.AutoDeleteOnIdle,
                 request.DefaultMessageTimeToLive,

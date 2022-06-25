@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
 using ServiceBusManager.Server.Application.Queries;
-using ServiceBusManager.Server.Infrastructure;
+using ServiceBusManager.Server.Providers.Azure.Models;
+using ServiceBusManager.Server.Providers.Common;
 
 namespace ServiceBusManager.Server.Application.Mappers
 {
@@ -12,9 +13,9 @@ namespace ServiceBusManager.Server.Application.Mappers
             CreateMap<ServiceBusQueueStatus, ServiceBusQueueStatusResponse>()
                 .ConvertUsingEnumMapping();
 
-            CreateMap<ServiceBusQueue, QueueGetResponse>();
+            CreateMap<AzureServiceBusQueue, QueueGetResponse>();
 
-            CreateMap<ServiceBusQueueDetails, QueueGetDetailsResponse>()
+            CreateMap<AzureServiceBusQueueDetails, QueueGetDetailsResponse>()
                 .ForMember(dest => dest.DefaultMessageTimeToLive, opt =>
                     opt.MapFrom(src => src.MessageSettings.DefaultMessageTimeToLive))
                 .ForMember(dest => dest.LockDuration, opt =>

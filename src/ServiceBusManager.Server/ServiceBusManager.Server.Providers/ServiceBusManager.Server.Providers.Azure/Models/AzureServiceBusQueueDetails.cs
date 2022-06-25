@@ -1,8 +1,10 @@
-﻿namespace ServiceBusManager.Server.Infrastructure
+﻿using ServiceBusManager.Server.Providers.Common;
+
+namespace ServiceBusManager.Server.Providers.Azure.Models
 {
-    public class ServiceBusQueueDetails
+    public class AzureServiceBusQueueDetails : ServiceBusQueueDetails
     {
-        public ServiceBusQueueDetails(
+        public AzureServiceBusQueueDetails(
             string name,
             ServiceBusQueueStatus status,
             TimeSpan autoDeleteOnIdle,
@@ -15,23 +17,26 @@
             bool enablePartitioning,
             bool requireSession,
             bool requireDuplicateDetection)
-            : this(
-                  name,
-                  autoDeleteOnIdle,
-                  defaultMessageTimeToLive,
-                  lockDuration,
-                  duplicateDetectionHistoryTimeWindow,
-                  maxSizeInMegabytes,
-                  maxDeliveryCount,
-                  enableBatchedOperations,
-                  enablePartitioning,
-                  requireSession,
-                  requireDuplicateDetection)
+            : base(name, status)
         {
-            Status = status;
+            MessageSettings = new AzureServiceBusQueueMessageSettings(
+                    autoDeleteOnIdle,
+                    defaultMessageTimeToLive,
+                    lockDuration);
+
+            Properties = new AzureServiceBusQueueProperties(
+                duplicateDetectionHistoryTimeWindow,
+                maxSizeInMegabytes,
+                maxDeliveryCount);
+
+            Settings = new AzureServiceBusQueueSettings(
+                enableBatchedOperations,
+                enablePartitioning,
+                requireSession,
+                requireDuplicateDetection);
         }
 
-        public ServiceBusQueueDetails(
+        public AzureServiceBusQueueDetails(
             string name,
             TimeSpan autoDeleteOnIdle,
             TimeSpan defaultMessageTimeToLive,
@@ -43,40 +48,35 @@
             bool enablePartitioning,
             bool requireSession,
             bool requireDuplicateDetection)
+            : base(name)
         {
-            Name = name;
-
-            MessageSettings = new ServiceBusQueueMessageSettings(
+            MessageSettings = new AzureServiceBusQueueMessageSettings(
                 autoDeleteOnIdle,
                 defaultMessageTimeToLive,
                 lockDuration);
 
-            Properties = new ServiceBusQueueProperties(
+            Properties = new AzureServiceBusQueueProperties(
                 duplicateDetectionHistoryTimeWindow,
                 maxSizeInMegabytes,
                 maxDeliveryCount);
 
-            Settings = new ServiceBusQueueSettings(
+            Settings = new AzureServiceBusQueueSettings(
                 enableBatchedOperations,
                 enablePartitioning,
                 requireSession,
                 requireDuplicateDetection);
         }
 
-        public string Name { get; }
+        public AzureServiceBusQueueMessageSettings MessageSettings { get; }
 
-        public ServiceBusQueueStatus Status { get; }
+        public AzureServiceBusQueueProperties Properties { get; }
 
-        public ServiceBusQueueMessageSettings MessageSettings { get; }
-
-        public ServiceBusQueueProperties Properties { get; }
-
-        public ServiceBusQueueSettings Settings { get; }
+        public AzureServiceBusQueueSettings Settings { get; }
     }
 
-    public class ServiceBusQueueMessageSettings
+    public class AzureServiceBusQueueMessageSettings
     {
-        public ServiceBusQueueMessageSettings(
+        public AzureServiceBusQueueMessageSettings(
             TimeSpan autoDeleteOnIdle,
             TimeSpan defaultMessageTimeToLive,
             TimeSpan lockDuration)
@@ -93,9 +93,9 @@
         public TimeSpan LockDuration { get; }
     }
 
-    public class ServiceBusQueueProperties
+    public class AzureServiceBusQueueProperties
     {
-        public ServiceBusQueueProperties(
+        public AzureServiceBusQueueProperties(
             TimeSpan duplicateDetectionHistoryTimeWindow,
             long maxSizeInMegabytes,
             int maxDeliveryCount)
@@ -112,9 +112,9 @@
         public int MaxDeliveryCount { get; }
     }
 
-    public class ServiceBusQueueSettings
+    public class AzureServiceBusQueueSettings
     {
-        public ServiceBusQueueSettings(
+        public AzureServiceBusQueueSettings(
             bool enableBatchedOperations,
             bool enablePartitioning,
             bool requireSession,

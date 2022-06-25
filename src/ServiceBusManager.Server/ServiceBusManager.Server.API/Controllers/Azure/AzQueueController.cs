@@ -1,21 +1,25 @@
 ﻿using System.Net.Mime;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ServiceBusManager.Server.API.Filters;
 using ServiceBusManager.Server.Application.Commands;
+using ServiceBusManager.Server.Application.Commands.Azure;
 using ServiceBusManager.Server.Application.Queries;
 
-namespace ServiceBusManager.Server.API.Controllers
+namespace ServiceBusManager.Server.API.Controllers.Azure
 {
     [ApiController]
-    [Route("api/queue/")]
+    [Route("api/az/queue/")]
     [Consumes(MediaTypeNames.Application.Json)]
     [Produces(MediaTypeNames.Application.Json)]
-    public class QueueController : ControllerBase
+    [AzureProviderTypeFilter]
+    [ApiExplorerSettings(GroupName = SwaggerDocumentation.AZ_GROUP)]
+    public class AzQueueController : ControllerBase
     {
         private readonly IServiceBusQueries _serviceBusQueries;
         private readonly IMediator _mediator;
 
-        public QueueController(IServiceBusQueries serviceBusQueries, IMediator mediator)
+        public AzQueueController(IServiceBusQueries serviceBusQueries, IMediator mediator)
         {
             _serviceBusQueries = serviceBusQueries;
             _mediator = mediator;
@@ -112,7 +116,7 @@ namespace ServiceBusManager.Server.API.Controllers
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> CreateQueueAsync(
             [FromRoute] string name,
-            [FromBody] CreateQueueCommand command)
+            [FromBody] CreateAzureQueueCommand command)
         {
             command.Name = name;
 

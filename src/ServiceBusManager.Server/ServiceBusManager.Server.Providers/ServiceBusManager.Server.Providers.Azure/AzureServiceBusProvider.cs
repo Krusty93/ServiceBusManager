@@ -2,10 +2,12 @@
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Logging;
+using ServiceBusManager.Server.Providers.Azure.Models;
+using ServiceBusManager.Server.Providers.Common;
 
-namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
+namespace ServiceBusManager.Server.Providers.Azure
 {
-    internal class AzureServiceBusProvider : IServiceBusProvider
+    public class AzureServiceBusProvider : IServiceBusProvider
     {
         private readonly ServiceBusAdministrationClient _adminClient;
         private readonly ServiceBusClient _client;
@@ -29,7 +31,7 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 
             await foreach (QueueRuntimeProperties queue in queues)
             {
-                var item = new ServiceBusQueue(
+                var item = new AzureServiceBusQueue(
                     name: queue.Name,
                     activeCount: queue.ActiveMessageCount,
                     deadLetterCount: queue.DeadLetterMessageCount);
@@ -49,7 +51,7 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
                 _logger.LogWarning("Unknown queue status value: {value}", details.Status.ToString());
             }
 
-            var queueDetails = new ServiceBusQueueDetails(
+            var queueDetails = new AzureServiceBusQueueDetails(
                 name: details.Name,
                 status: status,
                 autoDeleteOnIdle: details.AutoDeleteOnIdle,
@@ -81,20 +83,23 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
 
         public async Task CreateQueueAsync(string name, ServiceBusQueueDetails details, CancellationToken cancellationToken = default)
         {
+            if (details is not AzureServiceBusQueueDetails azureDetails)
+                throw new InvalidOperationException();
+
             var options = new CreateQueueOptions(name);
 
-            options.LockDuration = details.MessageSettings.LockDuration;
-            options.AutoDeleteOnIdle = details.MessageSettings.AutoDeleteOnIdle;
-            options.DefaultMessageTimeToLive = details.MessageSettings.DefaultMessageTimeToLive;
-            options.DuplicateDetectionHistoryTimeWindow = details.Properties.DuplicateDetectionHistoryTimeWindow;
-            options.MaxDeliveryCount = details.Properties.MaxDeliveryCount;
-            options.MaxSizeInMegabytes = details.Properties.MaxSizeInMegabytes;
-            options.EnableBatchedOperations = details.Settings.EnableBatchedOperations;
-            options.RequiresDuplicateDetection = details.Settings.RequireDuplicateDetection;
-            options.EnablePartitioning = details.Settings.EnablePartitioning;
-            options.RequiresSession = details.Settings.RequireSession;
+            options.LockDuration = azureDetails.MessageSettings.LockDuration;
+            options.AutoDeleteOnIdle = azureDetails.MessageSettings.AutoDeleteOnIdle;
+            options.DefaultMessageTimeToLive = azureDetails.MessageSettings.DefaultMessageTimeToLive;
+            options.DuplicateDetectionHistoryTimeWindow = azureDetails.Properties.DuplicateDetectionHistoryTimeWindow;
+            options.MaxDeliveryCount = azureDetails.Properties.MaxDeliveryCount;
+            options.MaxSizeInMegabytes = azureDetails.Properties.MaxSizeInMegabytes;
+            options.EnableBatchedOperations = azureDetails.Settings.EnableBatchedOperations;
+            options.RequiresDuplicateDetection = azureDetails.Settings.RequireDuplicateDetection;
+            options.EnablePartitioning = azureDetails.Settings.EnablePartitioning;
+            options.RequiresSession = azureDetails.Settings.RequireSession;
 
-            await _adminClient.CreateQueueAsync(options);
+            await _adminClient.CreateQueueAsync(options, cancellationToken);
         }
 
         public async Task PurgeActiveQueueAsync(string name, CancellationToken cancellationToken = default)

@@ -1,8 +1,11 @@
 ﻿using System.Reflection;
 using MediatR;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using ServiceBusManager.Server.API.Controllers;
+using ServiceBusManager.Server.Infrastructure;
+using ServiceBusManager.Server.Providers.Common;
 
 namespace ServiceBusManager.Server.API
 {
@@ -19,7 +22,7 @@ namespace ServiceBusManager.Server.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            SetupServiceBus(services);
+            SetupSettings(services);
 
             SetupSwagger(services);
 
@@ -45,14 +48,9 @@ namespace ServiceBusManager.Server.API
 
         #region Setup
 
-        private void SetupServiceBus(IServiceCollection services)
+        private void SetupSettings(IServiceCollection services)
         {
-            services.AddAzureClients(builder =>
-            {
-                var connectionString = _configuration.GetConnectionString("ServiceBus");
-                builder.AddServiceBusAdministrationClient(connectionString);
-                builder.AddServiceBusClient(connectionString);
-            });
+            services.Configure<ProviderOption>(_configuration.GetSection(nameof(ProviderOption)));
         }
 
         private void SetupSwagger(IServiceCollection services)
@@ -71,20 +69,29 @@ namespace ServiceBusManager.Server.API
                     Url = new Uri(_configuration["SwaggerApiInfo:Uri"])
                 };
 
-                var version = _configuration["SwaggerApiInfo:Version"];
-
                 options.SwaggerDoc(
-                    version,
+                    SwaggerDocumentation.AZ_GROUP,
                     new OpenApiInfo
                     {
-                        Title = $"{_configuration["SwaggerApiInfo:Title"]}",
-                        Version = version,
+                        Title = SwaggerDocumentation.AZ_TITLE,
+                        Version = SwaggerDocumentation.AZ_VERSION,
+                        Description = SwaggerDocumentation.AZ_DESCRIPTION,
+                        Contact = contact
+                    });
+
+                options.SwaggerDoc(
+                    SwaggerDocumentation.AWS_GROUP,
+                    new OpenApiInfo
+                    {
+                        Title = SwaggerDocumentation.AWS_TITLE,
+                        Version = SwaggerDocumentation.AWS_VERSION,
+                        Description = SwaggerDocumentation.AWS_DESCRIPTION,
                         Contact = contact
                     });
 
                 // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
             });
         }
@@ -117,9 +124,9 @@ namespace ServiceBusManager.Server.API
             services.AddHealthChecks();
         }
 
-        private static void SetupInternalServices(IServiceCollection services)
+        private void SetupInternalServices(IServiceCollection services)
         {
-            Infrastructure.Bootstrapper.Initialize(services);
+            services.InitializeInfrastructure(_configuration);
             Application.Bootstrapper.Initialize(services);
         }
 
@@ -136,10 +143,21 @@ namespace ServiceBusManager.Server.API
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
-                    options.InjectStylesheet("/swagger-custom/swaggerstyle.css");
-                    options.InjectJavascript("/swagger-custom/swaggerstyle.js");
                     options.DisplayRequestDuration();
+
+                    using IServiceScope scope = app.ApplicationServices.CreateScope();
+
+                    IOptionsSnapshot<ProviderOption> opt = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ProviderOption>>();
+
+                    if (opt.Value.Type == ProviderType.Az)
+                    {
+                        options.SwaggerEndpoint($"./{SwaggerDocumentation.AZ_GROUP}/swagger.json", SwaggerDocumentation.AZ_TITLE);
+
+                    }
+                    else if (opt.Value.Type == ProviderType.Aws)
+                    {
+                        options.SwaggerEndpoint($"./{SwaggerDocumentation.AWS_GROUP}/swagger.json", SwaggerDocumentation.AWS_TITLE);
+                    }
                 });
             }
         }

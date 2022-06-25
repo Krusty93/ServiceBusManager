@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using ServiceBusManager.Server.Infrastructure;
+using ServiceBusManager.Server.Providers.Common;
 
 namespace ServiceBusManager.Server.Application.Queries
 {
@@ -34,9 +34,9 @@ namespace ServiceBusManager.Server.Application.Queries
             return dto;
         }
 
-        public async Task<QueueGetAllMessageResponse> GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default)
+        public Task<QueueGetAllMessageResponse> GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default)
         {
-            await _serviceBusProvider.GetQueueActiveMessagesAsync(name, cancellationToken);
+            //await _serviceBusProvider.GetQueueActiveMessagesAsync(name, cancellationToken);
             throw new NotImplementedException();
         }
     }

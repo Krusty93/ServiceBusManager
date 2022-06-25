@@ -1,18 +1,17 @@
 ﻿using System.Diagnostics;
+using ServiceBusManager.Server.Providers.Common;
 
-namespace ServiceBusManager.Server.Infrastructure
+namespace ServiceBusManager.Server.Providers.Azure.Models
 {
     [DebuggerDisplay("{Name} ({ActiveCount}, {DeadLetterCount})")]
-    public class ServiceBusQueue
+    public class AzureServiceBusQueue : ServiceBusQueue
     {
-        public ServiceBusQueue(string name, long activeCount, long deadLetterCount)
+        public AzureServiceBusQueue(string name, long activeCount, long deadLetterCount)
+            : base(name)
         {
-            Name = name;
             ActiveCount = activeCount;
             DeadLetterCount = deadLetterCount;
         }
-
-        public string Name { get; }
 
         public long ActiveCount { get; }
 

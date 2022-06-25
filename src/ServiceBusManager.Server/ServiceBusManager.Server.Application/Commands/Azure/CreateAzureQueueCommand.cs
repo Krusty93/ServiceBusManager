@@ -2,9 +2,9 @@
 using MediatR;
 using ServiceBusManager.Server.API.Converters;
 
-namespace ServiceBusManager.Server.Application.Commands
+namespace ServiceBusManager.Server.Application.Commands.Azure
 {
-    public class CreateQueueCommand : IRequest
+    public class CreateAzureQueueCommand : IRequest
     {
         [JsonIgnore]
         public string? Name { get; set; }

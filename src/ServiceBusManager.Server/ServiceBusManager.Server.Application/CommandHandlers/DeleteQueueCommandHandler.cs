@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using ServiceBusManager.Server.Application.Commands;
-using ServiceBusManager.Server.Infrastructure;
+using ServiceBusManager.Server.Providers.Common;
 
 namespace ServiceBusManager.Server.Application.CommandHandlers
 {
