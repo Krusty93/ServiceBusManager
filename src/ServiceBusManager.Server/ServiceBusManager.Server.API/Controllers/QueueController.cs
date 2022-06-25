@@ -59,12 +59,24 @@ namespace ServiceBusManager.Server.API.Controllers
         [HttpGet]
         [Route("{name}")]
         [ProducesResponseType(typeof(QueueGetDetailsResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(QueueGetAllMessageResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         public async Task<IActionResult> GetQueueDetailsAsync([FromRoute] string name)
         {
             var details = await _serviceBusQueries.GetQueueDetailsAsync(name);
             return Ok(details);
+        }
+
+        [HttpGet]
+        [Route("{name}/messages")]
+        [ProducesResponseType(typeof(QueueGetAllMessageResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> GetMessagesAsync([FromRoute] string name)
+        {
+            var messages = await _serviceBusQueries.GetQueueActiveMessagesAsync(name);
+            return Ok(messages);
         }
 
         /// <summary>

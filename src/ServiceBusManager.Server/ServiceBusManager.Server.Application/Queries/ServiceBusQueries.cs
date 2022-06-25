@@ -33,5 +33,11 @@ namespace ServiceBusManager.Server.Application.Queries
             QueueGetDetailsResponse dto = _mapper.Map<QueueGetDetailsResponse>(details);
             return dto;
         }
+
+        public async Task<QueueGetAllMessageResponse> GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default)
+        {
+            await _serviceBusProvider.GetQueueActiveMessagesAsync(name, cancellationToken);
+            throw new NotImplementedException();
+        }
     }
 }

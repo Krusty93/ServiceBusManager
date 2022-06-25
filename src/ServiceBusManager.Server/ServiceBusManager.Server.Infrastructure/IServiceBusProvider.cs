@@ -14,5 +14,7 @@ namespace ServiceBusManager.Server.Infrastructure
         Task PurgeActiveQueueAsync(string name, CancellationToken cancellationToken = default);
 
         Task PurgeDeadLetterQueueAsync(string name, CancellationToken cancellationToken = default);
+
+        Task GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default);
     }
 }

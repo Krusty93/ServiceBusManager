@@ -66,6 +66,14 @@ namespace ServiceBusManager.Server.Infrastructure.AzureServiceBus
             return queueDetails;
         }
 
+        public async Task GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default)
+        {
+            const int MAX_COUNT = 50;
+
+            var receiver = GetReceiver(name);
+            _ = await receiver.PeekMessagesAsync(MAX_COUNT, cancellationToken: cancellationToken);
+        }
+
         public async Task DeleteQueueAsync(string name, CancellationToken cancellationToken = default)
         {
             await _adminClient.DeleteQueueAsync(name, cancellationToken);

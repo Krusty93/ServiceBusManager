@@ -7,6 +7,8 @@ namespace ServiceBusManager.Server.Application.Queries
         Task<QueueGetAllResponse> GetAllQueuesAsync(CancellationToken cancellationToken = default);
 
         Task<QueueGetDetailsResponse> GetQueueDetailsAsync(string name, CancellationToken cancellationToken = default);
+
+        Task<QueueGetAllMessageResponse> GetQueueActiveMessagesAsync(string name, CancellationToken cancellationToken = default);
     }
 
     public class QueueGetAllResponse
@@ -69,6 +71,11 @@ namespace ServiceBusManager.Server.Application.Queries
 
         [JsonPropertyName("requireDuplicateDetection")]
         public bool RequireDuplicateDetection { get; init; }
+    }
+
+    public record QueueGetAllMessageResponse
+    {
+
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
